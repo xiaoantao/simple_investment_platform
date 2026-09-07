@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>平台主页</title>
+  <style>
+    body { font-family: sans-serif; background: #0a0e2e; color: #fff; padding: 40px; }
+    .card { background: rgba(255,255,255,0.08); padding: 30px; border-radius: 16px; max-width: 600px; margin: 0 auto; }
+    h1 { margin-bottom: 16px; }
+    p { color: rgba(255,255,255,0.7); line-height: 1.8; }
+    button { margin-top: 20px; padding: 10px 24px; background: #64b4ff; border: none; border-radius: 8px; color: #fff; cursor: pointer; }
+    button:hover { background: #5a7fff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎉 欢迎来到投资交易平台</h1>
+    <p id="userInfo"></p>
+    <p>这里是你登录后看到的主页。你可以把之前的投资分析页和算法检测页链接放到这里。</p>
+    <p><a href="index.html">投资分析页面</a></p>
+    <p><a href="ml.html">算法检测页面</a></p>
+    <button onclick="logout()">退出登录</button>
+  </div>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) { window.location.href = 'login.html'; }
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    document.getElementById('userInfo').textContent = `当前用户：${user.username || '未知'}（${user.role || 'user'}）`;
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

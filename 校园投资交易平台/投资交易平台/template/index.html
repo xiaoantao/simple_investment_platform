@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金融产品投资管理系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --dark-bg: #1e293b;
+            --card-bg: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 子标签页样式 */
+        .sub-tabs {
+            display: flex;
+            gap: 8px;
+                margin-bottom: 20px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .sub-tab-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .sub-tab-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sub-tab-btn.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .sub-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: white;
+            border-radius: 2px 2px 0 0;
+        }
+
+        .sub-tab-content {
+            display: none;
+        }
+
+        .sub-tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            display: block;
+        }
+
+        .message.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            overflow-x: auto;
+        }
+
+        .table-container h2 {
+            color: var(--primary-color);
+                margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .table-container.compact h2 {
+            margin-bottom: 0;
+            font-size: 1.3em;
+            }
+
+            table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table thead tr {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+
+        table thead th {
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        table tbody tr:nth-child(even):hover {
+            background-color: #f3f4f6;
+        }
+
+        table td {
+            padding: 12px;
+            color: var(--text-primary);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .chart-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .lists-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .table-container.compact {
+            margin: 0;
+        }
+
+        .table-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .table-header-row h2 {
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .refresh-btn-small {
+            padding: 6px 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .refresh-btn-small:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid,
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .lists-row {
+                grid-template-columns: 1fr;
+            }
+
+            .sub-tabs {
+                gap: 5px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .sub-tab-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 金融产品投资管理系统</h1>
+            <p>全面管理客户投资数据，多维度数据分析</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('data')">产品管理</button>
+            <button class="tab-btn" onclick="switchTab('borrow_operation')">投资操作</button>
+            <button class="tab-btn" onclick="switchTab('analysis')">收益分析</button>
+            <button class="tab-btn" onclick="switchTab('borrow')">交易记录</button>
+            <button class="tab-btn" onclick="switchTab('lists')">信息列表</button>
+        </div>
+
+        <!-- 数据管理标签页 -->
+        <div id="data" class="tab-content active">
+            <div class="grid">
+                <!-- 添加产品 -->
+                <div class="card">
+                    <h2>💼 添加金融产品</h2>
+                    <form id="addProductForm">
+                <div class="form-group">
+                            <label>产品名称：</label>
+                            <input type="text" name="产品名称" required placeholder="例如: 稳健理财A">
+                </div>
+                <div class="form-group">
+                            <label>初始剩余额度：</label>
+                            <input type="number" name="剩余额度" min="0" value="0" required placeholder="例如: 1000">
+                </div>
+                        <div class="form-group">
+                            <label>日收益率（%）：</label>
+                            <input type="number" name="日收益率" min="0" step="0.01" value="0" placeholder="例如: 0.05 (表示0.05%)">
+                            <small style="color: var(--text-secondary); font-size: 12px;">提示：日收益率用于计算投资收益</small>
+                        </div>
+                        <div class="form-group" id="productIdDisplay" style="display: none;">
+                            <label>生成的产品编号：</label>
+                            <input type="text" id="generatedProductId" readonly style="background-color: #f3f4f6; color: var(--primary-color); font-weight: bold;">
+                        </div>
+                        <button type="submit" class="btn">添加产品</button>
+                        <div class="message" id="addProductMessage"></div>
+            </form>
+        </div>
+
+                <!-- 添加客户 -->
+                <div class="card">
+                    <h2>👤 添加客户</h2>
+                    <form id="addCustomerForm">
+                        <div class="form-group">
+                            <label>客户姓名：</label>
+                            <input type="text" name="客户姓名" required placeholder="例如: 张三">
+                        </div>
+                        <div class="form-group">
+                            <label>机构编号：</label>
+                            <select name="机构编号" id="customerInstitutionSelect" required>
+                                <option value="">请选择机构...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>账号额度（元）：</label>
+                            <input type="number" name="账号额度" min="0" step="0.01" value="0" required placeholder="例如: 100000">
+                            <small style="color: var(--text-secondary); font-size: 12px;">客户账号的初始可用额度</small>
+                        </div>
+                        <div class="form-group" id="customerIdDisplay" style="display: none;">
+                            <label>生成的客户编号：</label>
+                            <input type="text" id="generatedCustomerId" readonly style="background-color: #f3f4f6; color: var(--primary-color); font-weight: bold;">
+                        </div>
+                        <button type="submit" class="btn btn-success">添加客户</button>
+                        <div class="message" id="addCustomerMessage"></div>
+                    </form>
+                </div>
+
+                <!-- 添加机构 -->
+                <div class="card">
+                    <h2>🏦 添加金融机构</h2>
+                    <form id="addInstitutionForm">
+                        <div class="form-group">
+                            <label>机构名称：</label>
+                            <input type="text" name="机构名称" required placeholder="例如: 招商银行">
+                        </div>
+                        <div class="form-group" id="institutionIdDisplay" style="display: none;">
+                            <label>生成的机构编号：</label>
+                            <input type="text" id="generatedInstitutionId" readonly style="background-color: #f3f4f6; color: var(--primary-color); font-weight: bold;">
+                        </div>
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%);">添加机构</button>
+                        <div class="message" id="addInstitutionMessage"></div>
+                    </form>
+                </div>
+            </div>
+    </div>
+
+        <!-- 投资操作标签页 -->
+        <div id="borrow_operation" class="tab-content">
+            <div class="sub-tabs">
+                <button class="sub-tab-btn active" onclick="switchSubTab('borrow_operation', 'purchase')">💰 购买产品</button>
+                <button class="sub-tab-btn" onclick="switchSubTab('borrow_operation', 'holdings')">📊 当前持仓</button>
+    </div>
+
+            <!-- 购买产品子标签页 -->
+            <div id="borrow_operation_purchase" class="sub-tab-content active">
+                <div class="grid">
+                    <div class="card">
+                        <h2>💰 购买产品 
+                            <button type="button" onclick="loadSelectOptions()" style="float: right; padding: 6px 12px; font-size: 12px; background: var(--success-color); color: white; border: none; border-radius: 6px; cursor: pointer;">🔄 刷新列表</button>
+                        </h2>
+                        <form id="purchaseProductForm">
+                            <div class="form-group">
+                                <label>选择客户：</label>
+                                <select name="客户编号" id="purchaseCustomerSelect" required>
+                                    <option value="">请选择客户...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>选择产品：</label>
+                                <select name="产品编号" id="purchaseProductSelect" required>
+                                    <option value="">请选择产品...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>投资金额（元）：</label>
+                                <input type="number" name="投资金额" min="0" step="0.01" value="0" required placeholder="例如: 10000">
+                            </div>
+                            <div class="form-group">
+                                <label>投资期限（天）：</label>
+                                <input type="number" name="投资期限" min="1" step="1" value="30" required placeholder="例如: 30">
+                                <small style="color: var(--text-secondary); font-size: 12px;">提示：投资期限用于计算收益，赎回时将按此期限计算</small>
+                            </div>
+                            <button type="submit" class="btn" style="background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);">💰 购买产品</button>
+                            <div class="message" id="purchaseProductMessage"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 当前持仓子标签页 -->
+            <div id="borrow_operation_holdings" class="sub-tab-content">
+                <div class="table-container">
+                    <h2>📊 当前持仓中（点击赎回按钮赎回）</h2>
+                    <button type="button" onclick="loadCurrentInvestments()" style="margin-bottom: 15px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">🔄 刷新列表</button>
+                    <div id="currentInvestmentsTable"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 收益分析标签页 -->
+        <div id="analysis" class="tab-content">
+            <div class="stats-grid" id="statsGrid"></div>
+            
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>📊 按年份投资期限汇总</h3>
+                    <div class="chart-container">
+                        <canvas id="yearChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>🏦 按机构投资情况</h3>
+                    <div class="chart-container">
+                        <canvas id="institutionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>👥 客户投资排行榜（Top 10）</h3>
+                    <div class="chart-container">
+                        <canvas id="customerChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>💼 热门产品排行榜（Top 10）</h3>
+                    <div class="chart-container">
+                        <canvas id="productChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>📅 按月投资趋势</h3>
+                    <div class="chart-container">
+                        <canvas id="monthChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>📈 机构平均投资期限对比</h3>
+                    <div class="chart-container">
+                        <canvas id="institutionAvgChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 交易记录标签页 -->
+        <div id="borrow" class="tab-content">
+            <div class="table-container">
+                <h2>📋 完整交易记录</h2>
+                <button type="button" onclick="loadFullRecords()" style="margin-bottom: 15px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">🔄 刷新记录</button>
+                <div id="fullRecordsTable"></div>
+            </div>
+        </div>
+
+        <!-- 信息列表标签页 -->
+        <div id="lists" class="tab-content">
+            <div class="sub-tabs">
+                <button class="sub-tab-btn active" onclick="switchSubTab('lists', 'customers')">👤 客户列表</button>
+                <button class="sub-tab-btn" onclick="switchSubTab('lists', 'products')">💼 产品列表</button>
+                <button class="sub-tab-btn" onclick="switchSubTab('lists', 'institutions')">🏦 机构列表</button>
+            </div>
+
+            <!-- 客户列表子标签页 -->
+            <div id="lists_customers" class="sub-tab-content active">
+                <div class="table-container">
+                    <h2>👤 客户列表信息</h2>
+                    <button type="button" onclick="loadCustomersList()" style="margin-bottom: 15px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">🔄 刷新列表</button>
+                    <div id="customersListTable"></div>
+                </div>
+            </div>
+
+            <!-- 产品列表子标签页 -->
+            <div id="lists_products" class="sub-tab-content">
+                <div class="table-container">
+                    <h2>💼 产品列表信息</h2>
+                    <button type="button" onclick="loadProductsList()" style="margin-bottom: 15px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">🔄 刷新列表</button>
+                    <div id="productsListTable"></div>
+                </div>
+            </div>
+
+            <!-- 机构列表子标签页 -->
+            <div id="lists_institutions" class="sub-tab-content">
+                <div class="table-container">
+                    <h2>🏦 机构列表信息</h2>
+                    <button type="button" onclick="loadInstitutionsList()" style="margin-bottom: 15px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">🔄 刷新列表</button>
+                    <div id="institutionsListTable"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+        const API_BASE = "http://127.0.0.1:8002";
+        let charts = {};
+
+        // 切换标签页
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // 如果切换到分析页面，加载图表
+            if (tabName === 'analysis') {
+                loadAnalysisData();
+            } else if (tabName === 'borrow_operation') {
+                // 切换到投资操作页面，默认显示购买产品子tab
+                switchSubTab('borrow_operation', 'purchase');
+                loadSelectOptions();
+            } else if (tabName === 'borrow') {
+                loadFullRecords();
+            } else if (tabName === 'lists') {
+                // 切换到信息列表页面，默认显示客户列表子tab
+                switchSubTab('lists', 'customers');
+            }
+        }
+
+        // 切换子标签页
+        function switchSubTab(parentTab, subTabName) {
+            // 获取父标签页容器
+            const parentContainer = document.getElementById(parentTab);
+            if (!parentContainer) return;
+
+            // 隐藏所有子标签页内容
+            parentContainer.querySelectorAll('.sub-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 移除所有子标签页按钮的active状态
+            parentContainer.querySelectorAll('.sub-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 显示选中的子标签页内容
+            const targetContent = document.getElementById(`${parentTab}_${subTabName}`);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+
+            // 激活对应的子标签页按钮
+            const targetBtn = event?.target || parentContainer.querySelector(`.sub-tab-btn[onclick*="${subTabName}"]`);
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+            }
+
+            // 根据子标签页加载相应数据
+            if (parentTab === 'borrow_operation') {
+                if (subTabName === 'purchase') {
+                    loadSelectOptions();
+                } else if (subTabName === 'holdings') {
+                    loadCurrentInvestments();
+                }
+            } else if (parentTab === 'lists') {
+                if (subTabName === 'customers') {
+                    loadCustomersList();
+                } else if (subTabName === 'products') {
+                    loadProductsList();
+                } else if (subTabName === 'institutions') {
+                    loadInstitutionsList();
+                }
+            }
+        }
+
+  // 显示消息
+  function showMessage(elementId, message, isSuccess) {
+    const messageEl = document.getElementById(elementId);
+    messageEl.textContent = message;
+    messageEl.className = isSuccess ? "message success" : "message error";
+    setTimeout(() => {
+      messageEl.className = "message";
+    }, 5000);
+  }
+
+        // 添加产品
+        document.getElementById("addProductForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                product_name: formData.get("产品名称"),
+                rest_balance: parseInt(formData.get("剩余额度")) || 0,
+                day_profit: parseFloat(formData.get("日收益率")) || 0
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/add_product`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                showMessage("addProductMessage", result.message, result.success);
+                if (result.success) {
+                    // 显示生成的编号
+                    if (result.product_id) {
+                        document.getElementById("generatedProductId").value = result.product_id;
+                        document.getElementById("productIdDisplay").style.display = "block";
+                    }
+                    setTimeout(() => {
+                        e.target.reset();
+                        document.getElementById("productIdDisplay").style.display = "none";
+                    }, 3000);
+                    loadSelectOptions(); // 刷新产品列表
+                    loadProductsList(); // 刷新产品列表展示
+                }
+            } catch (error) {
+                showMessage("addProductMessage", "请求失败: " + error.message, false);
+            }
+        });
+
+        // 添加客户
+        document.getElementById("addCustomerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {
+                customer_name: formData.get("客户姓名"),
+                institution_code: formData.get("机构编号"),
+                customer_balance: parseFloat(formData.get("账号额度")) || 0
+    };
+
+    try {
+                const response = await fetch(`${API_BASE}/add_customer`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      console.log(result.message)
+                showMessage("addCustomerMessage", result.message, result.success);
+                if (result.success) {
+                    // 显示生成的编号
+                    if (result.customer_id) {
+                        document.getElementById("generatedCustomerId").value = result.customer_id;
+                        document.getElementById("customerIdDisplay").style.display = "block";
+                    }
+                    setTimeout(() => {
+                        e.target.reset();
+                        document.getElementById("customerIdDisplay").style.display = "none";
+                        loadSelectOptions(); // 刷新客户列表
+                    }, 3000);
+                }
+            } catch (error) {
+                showMessage("addCustomerMessage", "请求失败: " + error.message, false);
+            }
+        });
+
+        // 添加机构
+        document.getElementById("addInstitutionForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                institution_name: formData.get("机构名称")
+            };
+            try {
+                const response = await fetch(`${API_BASE}/add_institutions`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                showMessage("addInstitutionMessage", result.message, result.success);
+      if (result.success) {
+                    // 显示生成的编号
+                    if (result.机构编号) {
+                        document.getElementById("generatedInstitutionId").value = result.机构编号;
+                        document.getElementById("institutionIdDisplay").style.display = "block";
+                    }
+                    setTimeout(() => {
+        e.target.reset();
+                        document.getElementById("institutionIdDisplay").style.display = "none";
+                        // 如果信息列表页面是激活的，刷新机构列表
+                        if (document.getElementById('lists').classList.contains('active')) {
+                            loadInstitutionsList();
+                        }
+                        // 刷新客户表单中的机构下拉框
+                        loadInstitutionOptionsForCustomer();
+                    }, 3000);
+      }
+    } catch (error) {
+                showMessage("addInstitutionMessage", "请求失败: " + error.message, false);
+            }
+        });
+
+        // 购买产品
+        document.getElementById("purchaseProductForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                客户编号: formData.get("客户编号"),
+                产品编号: formData.get("产品编号"),
+                投资金额: parseFloat(formData.get("投资金额")) || 0,
+                投资期限: parseInt(formData.get("投资期限")) || 0
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/purchase_product`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                showMessage("purchaseProductMessage", result.message, result.success);
+                if (result.success) {
+                    e.target.reset();
+                    loadCurrentInvestments();
+                    loadProductsList(); // 刷新产品列表（额度会更新）
+                    if (document.getElementById('analysis').classList.contains('active')) {
+                        loadAnalysisData();
+                    }
+                }
+            } catch (error) {
+                showMessage("purchaseProductMessage", "请求失败: " + error.message, false);
+            }
+        });
+
+        // 加载机构列表到客户表单下拉框
+        async function loadInstitutionOptionsForCustomer() {
+            try {
+                const response = await fetch(`${API_BASE}/institutions_list`);
+                if (!response.ok) {
+                    console.error("加载机构列表失败:", response.status, response.statusText);
+                    return;
+                }
+                const data = await response.json();
+                alert(data)
+                
+                const institutionSelect = document.getElementById("customerInstitutionSelect");
+                if (!institutionSelect) {
+                    return;
+                }
+                
+                institutionSelect.innerHTML = '<option value="">请选择机构...</option>';
+                if (data.institutions && data.institutions.length > 0) {
+                    data.institutions.forEach(institution => {
+                        const option = document.createElement('option');
+                        option.value = institution.机构编号 || institution["机构编号"];
+                        const institutionName = institution.机构名称 || institution["机构名称"] || "";
+                        option.textContent = `${institution.机构编号 || institution["机构编号"]} - ${institutionName}`;
+                        institutionSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error("加载机构选项失败:", error);
+            }
+        }
+
+        // 加载客户和产品列表
+        async function loadSelectOptions() {
+            try {
+                // 加载客户列表
+                const customersRes = await fetch(`${API_BASE}/load_customers`);
+                if (!customersRes.ok) {
+                    console.error("加载客户列表失败:", customersRes.status, customersRes.statusText);
+                    return;
+                }
+                const customersData = await customersRes.json();
+                console.log("客户数据:", customersData);
+                
+                const customerSelect = document.getElementById("purchaseCustomerSelect");
+                if (!customerSelect) {
+                    console.error("找不到客户选择框元素");
+                    return;
+                }
+                
+                customerSelect.innerHTML = '<option value="">请选择客户...</option>';
+                if (customersData.customers && customersData.customers.length > 0) {
+                    customersData.customers.forEach(customer => {
+                        const option = document.createElement('option');
+                        option.value = customer.客户编号 || customer["客户编号"];
+                        option.textContent = `${customer.客户编号 || customer["客户编号"]} - ${customer.客户姓名 || customer["客户姓名"] || ""}`;
+                        customerSelect.appendChild(option);
+                    });
+                    console.log(`成功加载 ${customersData.customers.length} 个客户`);
+                } else {
+                    console.warn("客户列表为空");
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.textContent = "暂无客户数据";
+                    option.disabled = true;
+                    customerSelect.appendChild(option);
+                }
+
+                // 加载产品列表
+                const productsRes = await fetch(`${API_BASE}/load_products`);
+                if (!productsRes.ok) {
+                    console.error("加载产品列表失败:", productsRes.status, productsRes.statusText);
+                    return;
+                }
+                const productsData = await productsRes.json();
+                console.log("产品数据:", productsData);
+                
+                const productSelect = document.getElementById("purchaseProductSelect");
+                if (!productSelect) {
+                    console.error("找不到产品选择框元素");
+                    return;
+                }
+                
+                productSelect.innerHTML = '<option value="">请选择产品...</option>';
+                if (productsData.products && productsData.products.length > 0) {
+                    productsData.products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product.产品编号 || product["产品编号"];
+                        option.textContent = `${product.产品编号 || product["产品编号"]} - ${product.产品名称 || product["产品名称"] || ""}`;
+                        productSelect.appendChild(option);
+                    });
+                    console.log(`成功加载 ${productsData.products.length} 个产品`);
+                } else {
+                    console.warn("产品列表为空");
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.textContent = "暂无产品数据";
+                    option.disabled = true;
+                    productSelect.appendChild(option);
+                }
+            } catch (error) {
+                console.error("加载选项失败:", error);
+                alert("加载客户和产品列表失败，请检查控制台错误信息");
+            }
+        }
+
+        // 加载投资商品列表
+        async function loadCurrentInvestments() {
+            try {
+                const response = await fetch(`${API_BASE}/current_investments`);
+                const result = await response.json();
+
+                if (result.columns && result.data) {
+                    if (result.data.length === 0) {
+                        document.getElementById("currentInvestmentsTable").innerHTML = 
+                            '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">暂无正在持仓的产品</p>';
+                        return;
+                    }
+
+                    let tableHTML = "<table><thead><tr>";
+                    result.columns.forEach(col => {
+                        // 统一字段名显示
+                        let displayName = col;
+                        if (col === "客户编号") displayName = "客户编号";
+                        else if (col === "客户姓名") displayName = "客户姓名";
+                        else if (col === "产品编号") displayName = "产品编号";
+                        else if (col === "产品名称") displayName = "产品名称";
+                        else if (col === "投资时间") displayName = "投资时间";
+                        else if (col === "投资金额") displayName = "投资金额(元)";
+                        else if (col === "机构编号") displayName = "机构编号";
+                        tableHTML += `<th>${displayName}</th>`;
+                    });
+                    tableHTML += '<th>操作</th>';
+                    tableHTML += "</tr></thead><tbody>";
+
+                    result.data.forEach((row) => {
+                        tableHTML += '<tr>';
+                        result.columns.forEach(column => {
+                            invest_code = row["投资编号"]
+                            let value = row[column] || '';
+                            if (column === "投资金额" && value) {
+                                value = parseFloat(value).toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            }
+                            tableHTML += `<td>${value}</td>`;
+                        });
+                        tableHTML += `<td><button class="btn" onclick="redeemProduct('${invest_code}')" style="padding: 8px 16px; font-size: 14px; background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);">赎回</button></td>`;
+                        tableHTML += "</tr>";
+                    });
+
+                    tableHTML += "</tbody></table>";
+                    document.getElementById("currentInvestmentsTable").innerHTML = tableHTML;
+                } else {
+                    document.getElementById("currentInvestmentsTable").innerHTML = 
+                        '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">暂无正在持仓的产品</p>';
+                }
+            } catch (error) {
+                document.getElementById("currentInvestmentsTable").innerHTML = 
+                    `<p style="color: red;">加载失败: ${error.message}</p>`;
+            }
+        }
+
+        // 赎回功能
+        async function redeemProduct(recordIndex) {
+            if (!confirm('确认赎回这个产品吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/redeem_product`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ "投资编号" : recordIndex })
+                });
+
+                const result = await response.json();
+                alert(result.message);
+                
+                if (result.success) {
+                    loadCurrentInvestments();
+                    loadProductsList(); // 刷新产品列表（额度会更新）
+                    if (document.getElementById('analysis').classList.contains('active')) {
+                        loadAnalysisData();
+                    }
+                }
+            } catch (error) {
+                alert("赎回失败: " + error.message);
+            }
+        }
+
+        // 加载产品列表
+        async function loadProductsList() {
+            try {
+                const response = await fetch(`${API_BASE}/load_products`);
+                const result = await response.json();
+
+                if (result.products && result.products.length > 0) {
+                    let tableHTML = "<table><thead><tr>";
+                    tableHTML += "<th>产品编号</th><th>产品名称</th><th>剩余额度</th><th>日收益率(%)</th>";
+                    tableHTML += "</tr></thead><tbody>";
+
+                    result.products.forEach(product => {
+                        const quota = product.剩余额度 || product["剩余额度"] || 0;
+                        const dailyReturn = product.日收益率 || product["日收益率"] || 0;
+                        const quotaClass = quota > 0 ? "" : "style='color: var(--danger-color); font-weight: bold;'";
+                        tableHTML += '<tr>';
+                        tableHTML += `<td>${product.产品编号 || product["产品编号"] || ""}</td>`;
+                        tableHTML += `<td>${product.产品名称 || product["产品名称"] || ""}</td>`;
+                        tableHTML += `<td ${quotaClass}>${quota.toLocaleString('zh-CN')}</td>`;
+                        tableHTML += `<td>${parseFloat(dailyReturn).toFixed(2)}</td>`;
+                        tableHTML += "</tr>";
+                    });
+
+                    tableHTML += "</tbody></table>";
+                    document.getElementById("productsListTable").innerHTML = tableHTML;
+                } else {
+                    document.getElementById("productsListTable").innerHTML = 
+                        '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">暂无产品数据</p>';
+                }
+            } catch (error) {
+                document.getElementById("productsListTable").innerHTML = 
+                    `<p style="color: red;">加载失败: ${error.message}</p>`;
+            }
+        }
+
+        // 加载客户列表
+        async function loadCustomersList() {
+            try {
+                const response = await fetch(`${API_BASE}/load_customers`);
+                const result = await response.json();
+
+                if (result.customers && result.customers.length > 0) {
+                    let tableHTML = "<table><thead><tr>";
+                    tableHTML += "<th>客户编号</th><th>客户姓名</th><th>机构编号</th><th>账号额度(元)</th>";
+                    tableHTML += "</tr></thead><tbody>";
+
+                    result.customers.forEach(customer => {
+                        const accountQuota = customer.账号额度 || customer["账号额度"] || 0;
+                        tableHTML += '<tr>';
+                        tableHTML += `<td>${customer.客户编号 || customer["客户编号"] || ""}</td>`;
+                        tableHTML += `<td>${customer.客户姓名 || customer["客户姓名"] || ""}</td>`;
+                        tableHTML += `<td>${customer.机构编号 || customer["机构编号"] || ""}</td>`;
+
+                        tableHTML += `<td style="color: var(--success-color); font-weight: bold;">${parseFloat(accountQuota).toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
+                        tableHTML += "</tr>";
+                    });
+
+                    tableHTML += "</tbody></table>";
+                    document.getElementById("customersListTable").innerHTML = tableHTML;
+                } else {
+                    document.getElementById("customersListTable").innerHTML = 
+                        '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">暂无客户数据</p>';
+                }
+            } catch (error) {
+                document.getElementById("customersListTable").innerHTML = 
+                    `<p style="color: red;">加载失败: ${error.message}</p>`;
+            }
+        }
+
+        // 加载机构列表
+        async function loadInstitutionsList() {
+            try {
+                const response = await fetch(`${API_BASE}/institutions_list`);
+                const result = await response.json();
+                console.log(result.institutions)
+                if (result.institutions && result.institutions.length > 0) {
+                    let tableHTML = "<table><thead><tr>";
+                    tableHTML += "<th>机构编号</th><th>机构名称</th>";
+                    tableHTML += "</tr></thead><tbody>";
+
+                    result.institutions.forEach(institution => {
+                        tableHTML += '<tr>';
+                        tableHTML += `<td>${institution.机构编号 || institution["机构编号"] || ""}</td>`;
+                        tableHTML += `<td>${institution.机构名称 || institution["机构名称"] || ""}</td>`;
+                        tableHTML += "</tr>";
+                    });
+
+                    tableHTML += "</tbody></table>";
+                    document.getElementById("institutionsListTable").innerHTML = tableHTML;
+                } else {
+                    document.getElementById("institutionsListTable").innerHTML = 
+                        '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">暂无机构数据</p>';
+                }
+            } catch (error) {
+                document.getElementById("institutionsListTable").innerHTML = 
+                    `<p style="color: red;">加载失败: ${error.message}</p>`;
+            }
+        }
+
+        // 加载完整记录
+        async function loadFullRecords() {
+            try {
+                const response = await fetch(`${API_BASE}/customers?limit=1000`);
+                const result = await response.json();
+
+                if (result.columns && result.data) {
+                    let tableHTML = "<table><thead><tr>";
+                    result.columns.forEach(col => {
+                        // 统一字段名显示
+                        let displayName = col;
+                        if (col === "客户编号") displayName = "客户编号";
+                        else if (col === "客户姓名") displayName = "客户姓名";
+                        else if (col === "产品编号") displayName = "产品编号";
+                        else if (col === "产品名称") displayName = "产品名称";
+                        else if (col === "投资时间") displayName = "投资时间";
+                        else if (col === "投资期限") displayName = "投资期限(天)";
+                        else if (col === "投资金额") displayName = "投资金额(元)";
+                        else if (col === "机构编号") displayName = "机构编号";
+                        tableHTML += `<th>${displayName}</th>`;
+                    });
+                    tableHTML += "</tr></thead><tbody>";
+
+                    result.data.forEach(row => {
+                        tableHTML += '<tr>';
+                        result.columns.forEach(column => {
+                            let value = row[column] || '';
+                            if (column === "投资金额" && value) {
+                                value = parseFloat(value).toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            }
+                            tableHTML += `<td>${value}</td>`;
+                        });
+                        tableHTML += "</tr>";
+                    });
+
+                    tableHTML += "</tbody></table>";
+                    document.getElementById("fullRecordsTable").innerHTML = tableHTML;
+                }
+            } catch (error) {
+                document.getElementById("fullRecordsTable").innerHTML = `<p style="color: red;">加载失败: ${error.message}</p>`;
+            }
+        }
+
+        // 加载分析数据
+        async function loadAnalysisData() {
+            try {
+                // 加载统计数据
+                const customersRes = await fetch(`${API_BASE}/customers?limit=1000`);
+                const customersData = await customersRes.json();
+                
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <h3>总交易记录</h3>
+                        <div class="value">${customersData.total || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>当前显示</h3>
+                        <div class="value">${customersData.data?.length || 0}</div>
+                    </div>
+                `;
+
+                // 加载各维度分析数据
+                const [yearData, institutionData, customerData, productData, monthData] = await Promise.all([
+                    fetch(`${API_BASE}/customers_groupby`).then(r => r.json()),
+                    fetch(`${API_BASE}/analysis/institution`).then(r => r.json()),
+                    fetch(`${API_BASE}/analysis/customer`).then(r => r.json()),
+                    fetch(`${API_BASE}/analysis/product`).then(r => r.json()),
+                    fetch(`${API_BASE}/analysis/month`).then(r => r.json())
+                ]);
+
+                // 绘制图表
+                drawYearChart(yearData);
+                drawInstitutionChart(institutionData);
+                drawCustomerChart(customerData);
+                drawProductChart(productData);
+                drawMonthChart(monthData);
+                drawInstitutionAvgChart(institutionData);
+            } catch (error) {
+                console.error("加载分析数据失败:", error);
+            }
+        }
+
+        // 绘制年份图表
+        function drawYearChart(data) {
+            const ctx = document.getElementById('yearChart').getContext('2d');
+            if (charts.yearChart) charts.yearChart.destroy();
+            
+            charts.yearChart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                    labels: data.chartData?.years?.map(y => y + '年') || [],
+                  datasets: [{
+                      label: '投资期限（合计）',
+                        data: data.chartData?.durations || [],
+                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  responsive: true,
+                    maintainAspectRatio: false,
+                  plugins: {
+                        legend: { display: true }
+                  },
+                  scales: {
+                        y: { beginAtZero: true, title: { display: true, text: '投资期限(天)' } },
+                        x: { title: { display: true, text: '投资年份' } }
+                    }
+                }
+            });
+        }
+
+        // 绘制机构图表
+        function drawInstitutionChart(data) {
+            const ctx = document.getElementById('institutionChart').getContext('2d');
+            if (charts.institutionChart) charts.institutionChart.destroy();
+            
+            charts.institutionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.institutions || [],
+                    datasets: [{
+                        label: '总投资期限',
+                        data: data.totalDurations || [],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.7)',
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(59, 130, 246, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'right' }
+                    }
+                }
+            });
+        }
+
+        // 绘制客户图表
+        function drawCustomerChart(data) {
+            const ctx = document.getElementById('customerChart').getContext('2d');
+            if (charts.customerChart) charts.customerChart.destroy();
+            
+            charts.customerChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.customers || [],
+                    datasets: [{
+                        label: '投资次数',
+                        data: data.counts || [],
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, title: { display: true, text: '投资次数' } },
+                        y: { title: { display: true, text: '客户编号' } }
+                  }
+              }
+          });
+        }
+
+        // 绘制产品图表
+        function drawProductChart(data) {
+            const ctx = document.getElementById('productChart').getContext('2d');
+            if (charts.productChart) charts.productChart.destroy();
+            
+            charts.productChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.products || [],
+                    datasets: [{
+                        label: '投资次数',
+                        data: data.counts || [],
+                        backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, title: { display: true, text: '投资次数' } },
+                        y: { title: { display: true, text: '产品名称' } }
+                    }
+                }
+            });
+        }
+
+        // 绘制月份图表
+        function drawMonthChart(data) {
+            const ctx = document.getElementById('monthChart').getContext('2d');
+            if (charts.monthChart) charts.monthChart.destroy();
+            
+            charts.monthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.months || [],
+                    datasets: [{
+                        label: '总投资期限',
+                        data: data.durations || [],
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: '投资期限(天)' } },
+                        x: { title: { display: true, text: '月份' } }
+                    }
+                }
+            });
+        }
+
+        // 绘制机构平均投资期限图表
+        function drawInstitutionAvgChart(data) {
+            const ctx = document.getElementById('institutionAvgChart').getContext('2d');
+            if (charts.institutionAvgChart) charts.institutionAvgChart.destroy();
+            
+            charts.institutionAvgChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.institutions || [],
+                    datasets: [{
+                        label: '平均投资期限',
+                        data: data.avgDurations || [],
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: '平均投资期限(天)' } },
+                        x: { title: { display: true, text: '机构编号' } }
+                    }
+                }
+            });
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('load', () => {
+            loadSelectOptions();
+            loadCurrentInvestments();
+            loadInstitutionOptionsForCustomer();
+        });
+</script>
+</body>
+</html>
